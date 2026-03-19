@@ -45,6 +45,8 @@
         /* TEXTURE */
         .noise-overlay { position: fixed; inset: 0; z-index: 999; opacity: 0.03; pointer-events: none; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
 
+        #hearts-container { position: fixed; inset: 0; z-index: 1001; pointer-events: none; overflow: hidden; }
+
         /* CENTER GLOW */
         .ethereal-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80vw; height: 80vh; pointer-events: none; z-index: 1; background: radial-gradient(circle at center, rgba(255, 255, 255, 0.3) 0%, rgba(0,0,0,0) 60%); opacity: 0; transition: opacity 2s ease-out; }
 
@@ -68,22 +70,56 @@
         .smooth-skew { will-change: transform; }
         .char { display: inline-block; }
         
-  filter: blur(0);
 /* PREMIUM: BACKGROUND BREATHING */
 .bg-breathe {
-  animation: breathe 18s ease-in-out infinite;
+  /* animation: breathe 18s ease-in-out infinite; */
+  animation: breathe 30s cubic-bezier(0.42, 0, 0.58, 1) infinite;
 }
 
 @keyframes breathe {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  50% { transform: scale(1.3); }
 }
+
+/* HEARTS BURST ANIMATION */
+.heart {
+  position: absolute;
+  color: #1A1A1A;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transform-origin: center;
+}
+
+.heart-center {
+  position: absolute;
+  color: #050505;
+  font-size: 56px;
+  pointer-events: none;
+  z-index: 1000;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transform-origin: center;
+}
+
+.heart-beat {
+  animation: heart-beat 0.8s ease-in-out infinite;
+}
+
+@keyframes heart-beat {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.25); }
+}
+
     </style>
 </head>
 <body class="antialiased selection:bg-gold selection:text-white">
 
     <div class="noise-overlay"></div>
     <div id="particles"></div>
+    <div id="hearts-container"></div>
 
     <audio id="bg-music" loop>
         <source src="public/music/yiruma.mp3" type="audio/mp3">
@@ -219,7 +255,7 @@
                             <div class="smooth-skew">
                                 <span class="font-sans text-[9px] md:text-[10px] tracking-[0.3em] text-terra uppercase font-bold block mb-2">Mempelai Wanita</span>
                                 <h2 class="font-title text-4xl md:text-7xl text-ink leading-none mb-3">Ditania Nur Azizah<br><span class="text-2xl md:text-4xl italic text-ink/60 font-body">Tania</span></h2>
-                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 md:ml-auto leading-relaxed">Putri Kedua dari Keluarga<br>Bpk. Tania & Ibu Tania</p>
+                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 md:ml-auto leading-relaxed">Putri Pertama dari Keluarga<br>Bpk. Tania & Ibu Tania</p>
                             </div>
                         </div>
                     </div>
@@ -245,7 +281,7 @@
                 <div class="text-center mb-12 smooth-skew fade-up">
                     <span class="font-sans text-[9px] md:text-[10px] tracking-[0.3em] text-terra uppercase block mb-3">Rangkaian Acara</span>
                     <h2 class="font-title text-4xl md:text-7xl text-ink split-text-reveal">Save The Date</h2>
-                    <p class="font-sans text-sm md:text-lg mt-3 text-ink/70">Minggu, 20 Desember 2026</p>
+                    <p class="font-sans text-sm md:text-lg mt-3 text-ink/70">Sabtu, 23 Mei 2026</p>
                 </div>
                 <div class="flex justify-center gap-4 md:gap-8 mb-16 border-y border-terra/20 py-6 fade-up" id="countdown"><div class="absolute inset-x-0 top-0 h-[1px] bg-gold/30 reveal-line-x"></div><div class="absolute inset-x-0 bottom-0 h-[1px] bg-gold/30 reveal-line-x"></div></div>
                 <div class="relative border-l border-terra/30 ml-2 md:ml-1/2 pl-6 md:pl-12 space-y-12">
@@ -287,7 +323,6 @@
             mainBackgroundImage: "public/images/bg.jpg",
             groomImage: "public/images/cowo.jpg",
             brideImage: "public/images/cewe.jpg",
-            whatsappNumber: "6283102113849"
         };
 
         gsap.registerPlugin(ScrollTrigger);
@@ -320,8 +355,6 @@
                 setTimeout(() => document.getElementById('cover-btn').classList.remove('opacity-0'), 1400);
                 if(document.getElementById('cover-img')) document.getElementById('cover-img').classList.remove('scale-110');
             }, 300);
-
-            createParticles();
         };
 
         function enterWorld() {
@@ -332,6 +365,9 @@
                     document.getElementById('music-btn').classList.remove('hidden');
                 }).catch(e => console.log("Audio play error:", e));
             }
+
+            // HEARTS BURST ANIMATION (returns a promise that resolves when the beat ends)
+            const heartDone = createHeartsBurst();
 
             const tl = gsap.timeline();
             tl.to("#title-romeo", { x: -50, opacity: 0, duration: 0.8, ease: "power2.in" })
@@ -357,6 +393,9 @@
                           gsap.to(".fade-up-hero", { opacity: 1, y: 0, duration: 1, stagger: 0.2, delay: 0.5 });
                           gsap.to(".reveal-line-y", { scaleY: 1, duration: 1, ease: "power3.out", delay: 1 }); 
                       }, 100);
+
+                      // Start background particles after main is visible and the heart beat is complete
+                      if (heartDone && heartDone.then) heartDone.then(() => createParticles());
                   }
               });
         }
@@ -403,12 +442,82 @@
 
         function createParticles() {
             const container = document.getElementById('particles');
-            for(let i=0; i<30; i++){
+            for(let i=0; i<69; i++){
                 const p = document.createElement('div');
                 p.classList.add('particle'); p.style.left = Math.random()*100 + 'vw'; p.style.top = Math.random()*100 + 'vh'; p.style.opacity = Math.random();
                 container.appendChild(p);
                 gsap.to(p, { y: -100, x: "random(-50, 50)", duration: "random(5, 10)", repeat: -1, ease: "none", yoyo: true });
             }
+        }
+
+        function createHeartsBurst() {
+            return new Promise(resolve => {
+                const container = document.getElementById('hearts-container');
+                const heartSymbols = ['❤︎⁠'];
+
+                const button = document.getElementById('cover-btn');
+                const rect = button.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                // Create a single beating heart in the center (shown after burst)
+                const centerHeart = document.createElement('div');
+                centerHeart.className = 'heart-center';
+                centerHeart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                centerHeart.style.left = centerX + 'px';
+                centerHeart.style.top = centerY + 'px';
+                container.appendChild(centerHeart);
+
+                gsap.to(centerHeart, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(2)' });
+                setTimeout(() => centerHeart.classList.add('heart-beat'), 500);
+
+                const cleanup = () => {
+                    centerHeart.classList.remove('heart-beat');
+                    gsap.to(centerHeart, { opacity: 0, scale: 0, duration: 0.4, ease: 'power1.in', onComplete: () => {
+                        centerHeart.remove();
+                        resolve();
+                    }});
+                };
+
+                setTimeout(cleanup, 3800);
+
+                // Burst hearts animation
+                for (let i = 0; i < 18; i++) {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+                    container.appendChild(heart);
+
+                    heart.style.left = centerX + 'px';
+                    heart.style.top = centerY + 'px';
+
+                    const direction = Math.random() > 0.5 ? 1 : -1;
+                    const randX = (Math.random() * 220 + 80) * direction + (Math.random() - 0.5) * 60;
+                    const randY = -(Math.random() * 240 + 80);
+                    const rotation = (Math.random() * 140 - 70) * direction;
+                    const delay = Math.random() * 0.2;
+
+                    const tl = gsap.timeline({ delay });
+                    tl.to(heart, {
+                        opacity: 1,
+                        scale: 1,
+                        rotation,
+                        x: randX,
+                        y: randY,
+                        duration: 1.2,
+                        ease: 'power2.out'
+                    })
+                    .to(heart, {
+                        x: 0,
+                        y: 0,
+                        scale: 0.4,
+                        opacity: 0.25,
+                        duration: 0.8,
+                        ease: 'power2.in',
+                        onComplete: () => heart.remove()
+                    }, '+=0.15');
+                }
+            });
         }
 
         function toggleMusic() { const m = document.getElementById('bg-music'); if(m.paused){m.play(); document.querySelector('#music-btn i').classList.add('animate-spin');} else {m.pause(); document.querySelector('#music-btn i').classList.remove('animate-spin');} }
