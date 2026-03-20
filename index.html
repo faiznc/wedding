@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Wedding of Faiz Noerdiyan Cesara & Ditania Nur Azizah</title>
+    <title>The Wedding of Faiz & Tania</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Montserrat:wght@200;300;400;500&display=swap" rel="stylesheet">
@@ -70,49 +70,67 @@
         .smooth-skew { will-change: transform; }
         .char { display: inline-block; }
         
-/* PREMIUM: BACKGROUND BREATHING */
-.bg-breathe {
-  /* animation: breathe 18s ease-in-out infinite; */
-  animation: breathe 30s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-}
+    /* PREMIUM: BACKGROUND BREATHING */
+    .bg-breathe {
+    /* animation: breathe 18s ease-in-out infinite; */
+    animation: breathe 30s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+    }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
+    @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    }
 
-/* HEARTS BURST ANIMATION */
-.heart {
-  position: absolute;
-  color: #1A1A1A;
-  font-size: 24px;
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0);
-  transform-origin: center;
-}
+    /* HEARTS BURST ANIMATION */
+    .heart {
+    position: absolute;
+    color: #1A1A1A;
+    font-size: 24px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center;
+    }
 
-.heart-center {
-  position: absolute;
-  color: #050505;
-  font-size: 56px;
-  pointer-events: none;
-  z-index: 1000;
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0);
-  transform-origin: center;
-}
+    .heart-center {
+    position: absolute;
+    color: #050505;
+    font-size: 56px;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+    transform-origin: center;
+    }
 
-.heart-beat {
-  animation: heart-beat 0.8s ease-in-out infinite;
-}
+    .heart-beat {
+    animation: heart-beat 0.8s ease-in-out infinite;
+    }
 
-@keyframes heart-beat {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(1.25); }
-}
+    @keyframes heart-beat {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.25); }
+    }
 
+    /* Modal Animations */
+    @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeOut {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.9); }
+    }
+
+        .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .animate-fade-out {
+        animation: fadeOut 0.3s ease-in forwards;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-gold selection:text-white">
@@ -131,7 +149,7 @@
 
     <div id="transition-screen" style="display: none; opacity: 0; position: fixed; inset: 0; z-index: 55; background: #F4F2EE; align-items: center; justify-content: center;">
         <div class="text-center" id="trans-content">
-            <h1 class="font-title text-5xl md:text-9xl text-black transform scale-90" id="trans-logo">T & F</h1>
+            <h1 class="font-title text-5xl md:text-9xl text-black transform scale-90" id="trans-logo">F & T</h1>
             <p class="font-sans text-[9px] md:text-[10px] text-charcoal/75 tracking-[0.5em] mt-4 uppercase opacity-0" id="trans-text">The Beginning</p>
         </div>
     </div>
@@ -305,7 +323,7 @@
             </div>
         </section>
 
-        <footer class="py-10 text-center border-t border-ink/5 fade-up"><h1 class="font-script text-3xl text-terra mb-1">T & F</h1><p class="font-sans text-[8px] text-ink/40 uppercase tracking-widest">XzorStudio.Dev © 2026</p></footer>
+        <footer class="py-10 text-center border-t border-ink/5 fade-up"><h1 class="font-script text-3xl text-terra mb-1">F & T</h1><p class="font-sans text-[8px] text-ink/40 uppercase tracking-widest">XzorStudio © 2026 — Refined & stylized by Faiz</p></footer>
     </main>
 
     <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/80 backdrop-blur-md border border-white/40 rounded-full px-4 py-3 flex shadow-xl transition-transform duration-700 translate-y-24 gap-6" id="navbar">
@@ -545,19 +563,43 @@
         function copyText(txt) { navigator.clipboard.writeText(txt); alert("Tersalin!"); }
         
         function showSuccessModal() {
-            document.getElementById('success-modal').classList.remove('hidden');
+            const modal = document.getElementById('success-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('animate-fade-in');
+            modal.addEventListener('animationend', function removeAnimate() {
+                modal.classList.remove('animate-fade-in');
+                modal.removeEventListener('animationend', removeAnimate);
+            }, { once: true });
         }
         
         function hideSuccessModal() {
-            document.getElementById('success-modal').classList.add('hidden');
+            const modal = document.getElementById('success-modal');
+            modal.classList.add('animate-fade-out');
+            modal.addEventListener('animationend', function removeAnimate() {
+                modal.classList.add('hidden');
+                modal.classList.remove('animate-fade-out');
+                modal.removeEventListener('animationend', removeAnimate);
+            }, { once: true });
         }
         
         function showErrorModal() {
-            document.getElementById('error-modal').classList.remove('hidden');
+            const modal = document.getElementById('error-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('animate-fade-in');
+            modal.addEventListener('animationend', function removeAnimate() {
+                modal.classList.remove('animate-fade-in');
+                modal.removeEventListener('animationend', removeAnimate);
+            }, { once: true });
         }
         
         function hideErrorModal() {
-            document.getElementById('error-modal').classList.add('hidden');
+            const modal = document.getElementById('error-modal');
+            modal.classList.add('animate-fade-out');
+            modal.addEventListener('animationend', function removeAnimate() {
+                modal.classList.add('hidden');
+                modal.classList.remove('animate-fade-out');
+                modal.removeEventListener('animationend', removeAnimate);
+            }, { once: true });
         }
         
         async function submitRSVP(event) {
@@ -625,8 +667,8 @@
              <div class="flex items-center justify-center mb-6">
                  <i class="fas fa-check-circle text-2xl text-green-500"></i>
              </div>
-             <h3 class="font-title text-2xl text-ink mb-4">Terima Kasih!</h3>
-             <p class="font-sans text-ink/70 mb-6">RSVP Anda telah berhasil terkirim.</p>
+             <h3 class="font-title text-2xl text-ink mb-4">Terima Kasih</h3>
+             <p class="font-sans text-ink/70 mb-6">Tanggapan Anda berhasil terkirim!</p>
              <button onclick="hideSuccessModal()" class="w-full bg-charcoal text-white font-sans text-sm py-2 rounded-full hover:bg-black transition">
                  Tutup
              </button>
