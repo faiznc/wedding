@@ -348,56 +348,121 @@
 
         gsap.registerPlugin(ScrollTrigger);
 
-        window.onload = () => {
-            if(CONFIG.coverImage) document.getElementById('cover-img').src = CONFIG.coverImage;
-            if(CONFIG.groomImage) document.getElementById('img-groom').src = CONFIG.groomImage;
-            if(CONFIG.brideImage) document.getElementById('img-bride').src = CONFIG.brideImage;
-            if(CONFIG.mainBackgroundImage) document.getElementById('main-bg-img').src = CONFIG.mainBackgroundImage;
+         window.onload = () => {
+             if(CONFIG.coverImage) document.getElementById('cover-img').src = CONFIG.coverImage;
+             if(CONFIG.groomImage) document.getElementById('img-groom').src = CONFIG.groomImage;
+             if(CONFIG.brideImage) document.getElementById('img-bride').src = CONFIG.brideImage;
+             if(CONFIG.mainBackgroundImage) document.getElementById('main-bg-img').src = CONFIG.mainBackgroundImage;
 
-            // Check for recent RSVP submission (within 24 hours)
-            const lastSubmit = localStorage.getItem('lastRSVPSubmit');
-            const submitButton = document.getElementById('rsvp-button');
-            if (lastSubmit) {
-                const now = new Date().getTime();
-                const timeDiff = now - parseInt(lastSubmit);
-                const hoursDiff = timeDiff / (1000 * 60 * 60);
-                if (hoursDiff < 24) {
-                    // Disable button and show submitted state
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = 'Terima Kasih!';
-                }
-            }
-
-             // --- BAGIAN URL PARAMETER DI SINI ---
-             const urlParams = new URLSearchParams(window.location.search);
-             // Mendukung parameter 'to', 'p', 'guest', atau 'name' (misal: ?name=John Doe)
-             // Example URL : http://localhost:3000/?name=Hidup%20Jokowi
-             const guestName = urlParams.get('to') || urlParams.get('p') || urlParams.get('guest') || urlParams.get('name');
-             if(guestName) {
-                 const decodedName = decodeURIComponent(guestName).replace(/\+/g, ' ');
-                 document.getElementById('guest-name').innerText = decodedName;
-                 // Also set the RSVP name input if it exists
-                 const rsvpNameInput = document.getElementById('name');
-                 if (rsvpNameInput) {
-                     rsvpNameInput.value = decodedName;
+             // Check for recent RSVP submission (within 24 hours)
+             const lastSubmit = localStorage.getItem('lastRSVPSubmit');
+             const submitButton = document.getElementById('rsvp-button');
+             if (lastSubmit) {
+                 const now = new Date().getTime();
+                 const timeDiff = now - parseInt(lastSubmit);
+                 const hoursDiff = timeDiff / (1000 * 60 * 60);
+                 if (hoursDiff < 24) {
+                     // Disable button and show submitted state
+                     submitButton.disabled = true;
+                     submitButton.innerHTML = 'Terima Kasih!';
                  }
              }
-             // ------------------------------------
 
-            setTimeout(() => {
-                document.getElementById('main-glow').style.opacity = '1';
-                document.querySelectorAll('.split-cover-text').forEach(el => {
-                    const text = new SplitType(el, { types: 'chars' });
-                    gsap.from(text.chars, { opacity: 0, y: 50, rotate: 5, stagger: 0.03, duration: 1, ease: "power3.out" });
-                });
-                setTimeout(() => document.getElementById('label-top').classList.remove('opacity-0'), 300);
-                setTimeout(() => document.getElementById('title-and').classList.remove('opacity-0'), 800);
-                setTimeout(() => document.getElementById('label-btm').classList.remove('opacity-0'), 1000);
-                setTimeout(() => document.getElementById('guest-container').classList.remove('opacity-0'), 1200);
-                setTimeout(() => document.getElementById('cover-btn').classList.remove('opacity-0'), 1400);
-                if(document.getElementById('cover-img')) document.getElementById('cover-img').classList.remove('scale-110');
-            }, 300);
-        };
+              // --- BAGIAN URL PARAMETER DI SINI ---
+              const urlParams = new URLSearchParams(window.location.search);
+              // Mendukung parameter 'to', 'p', 'guest', atau 'name' (misal: ?name=John Doe)
+              // Example URL : http://localhost:3000/?name=Hidup%20Jokowi
+              const guestName = urlParams.get('to') || urlParams.get('p') || urlParams.get('guest') || urlParams.get('name');
+              if(guestName) {
+                  const decodedName = decodeURIComponent(guestName).replace(/\+/g, ' ');
+                  document.getElementById('guest-name').innerText = decodedName;
+                  // Also set the RSVP name input if it exists
+                  const rsvpNameInput = document.getElementById('name');
+                  if (rsvpNameInput) {
+                      rsvpNameInput.value = decodedName;
+                  }
+              }
+              // ------------------------------------
+
+              // --- SUBDOMAIN DETECTION FOR TIME SLOT AND GIFT VISIBILITY ---
+              const hostname = window.location.hostname;
+              const subdomain = hostname.split('.')[0];
+
+              // Mapping subdomain to slot and gift visibility
+              const subdomainConfig = {
+                  'pernikahantania': { slot: "A", gift: true },
+                  'weddingtania': { slot: "B", gift: true },
+                  'pernikahanfaiz': { slot: "A", gift: false },
+                  'weddingfaiz': { slot: "B", gift: false }
+              };
+
+              // Default configuration for other subdomains
+              const config = subdomainConfig[subdomain] || { slot: "ALL", gift: true };
+
+              // Store config globally for use in other functions
+              window.subdomainConfig = config;
+              
+              // Update event time slots based on subdomain config
+              updateEventTimeSlots(config.slot);
+              
+              // Toggle gift section visibility based on subdomain config
+              toggleGiftSection(config.gift);
+              // ------------------------------------
+
+             setTimeout(() => {
+                 document.getElementById('main-glow').style.opacity = '1';
+                 document.querySelectorAll('.split-cover-text').forEach(el => {
+                     const text = new SplitType(el, { types: 'chars' });
+                     gsap.from(text.chars, { opacity: 0, y: 50, rotate: 5, stagger: 0.03, duration: 1, ease: "power3.out" });
+                 });
+                 setTimeout(() => document.getElementById('label-top').classList.remove('opacity-0'), 300);
+                 setTimeout(() => document.getElementById('title-and').classList.remove('opacity-0'), 800);
+                 setTimeout(() => document.getElementById('label-btm').classList.remove('opacity-0'), 1000);
+                 setTimeout(() => document.getElementById('guest-container').classList.remove('opacity-0'), 1200);
+                 setTimeout(() => document.getElementById('cover-btn').classList.remove('opacity-0'), 1400);
+                 if(document.getElementById('cover-img')) document.getElementById('cover-img').classList.remove('scale-110');
+             }, 300);
+         };
+         
+          // Function to update event time slots based on slot type
+          function updateEventTimeSlots(slot) {
+              // Select all time elements in the event section
+              const timeElements = document.querySelectorAll('#event p.font-sans.text-\\[10px\\].text-terra.font-bold.tracking-widest');
+              
+              // Update based on slot type
+              if (slot === "A") {
+                  // Slot A: 11.00 - 12.30 for both events
+                  timeElements[0].textContent = "07.00 - 08.00";
+                  timeElements[1].textContent = "11.00 — 12.30";
+              } else if (slot === "B") {
+                  // Slot B: 12.30 - 13.30 for both events
+                  timeElements[0].textContent = "07.00 - 08.00";
+                  timeElements[1].textContent = "12.30 — 13.30 ";
+              } else if (slot === "ALL") {
+                  // Slot ALL: 11.00 - 13.30 for both events
+                  timeElements[0].textContent = "07.00 - 08.00";
+                  timeElements[1].textContent = "11.00 — 13.30 ";
+              }
+          }
+         
+          // Function to toggle gift section visibility and adjust layout
+          function toggleGiftSection(show) {
+              const giftSection = document.querySelector('#rsvp > div > div:first-child');
+              const rsvpSection = document.querySelector('#rsvp > div');
+              
+              if (giftSection && rsvpSection) {
+                  if (show) {
+                      giftSection.style.display = 'block';
+                      // Restore to grid layout with two columns when gift section is visible
+                      rsvpSection.className = 'max-w-4xl mx-auto grid md:grid-cols-2 gap-12';
+                  } else {
+                      giftSection.style.display = 'none';
+                      // Change to flex layout to center the RSVP section when gift section is hidden
+                      // Keep the max-w-4xl mx-auto for centering, but change to flex column for proper stacking
+                      rsvpSection.className = 'max-w-4xl mx-auto flex flex-col items-center';
+                  }
+              }
+          }
 
         function enterWorld() {
             // MUSIC PLAY LOGIC (TRIGGERED BY CLICK)
