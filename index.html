@@ -616,6 +616,21 @@
             const name = document.getElementById("name").value;
             const attendance = document.getElementById("pax").value;
             const message = document.getElementById("status").value;
+            
+            // Validate name is not empty
+            if (!name.trim()) {
+                // Show error modal for empty name
+                const errorModal = document.getElementById('error-modal');
+                const errorTitle = errorModal.querySelector('h3');
+                const errorMessage = errorModal.querySelector('p');
+                errorTitle.textContent = 'Oops!';
+                errorMessage.textContent = 'Mohon masukan nama anda';
+                showErrorModal();
+                // Reset button state
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Konfirmasi';
+                return;
+            }
  
             const response = await fetch(
                 "https://yymhkjscspyrrpolllfz.supabase.co/rest/v1/rsvp",
@@ -685,7 +700,7 @@
                  <i class="fas fa-exclamation-circle text-2xl text-red-500"></i>
              </div>
              <h3 class="font-title text-2xl text-ink mb-4">Oops!</h3>
-             <p class="font-sans text-ink/70 mb-6">Terjadi kesalahan saat mengirim RSVP. Silakan coba lagi.</p>
+             <p class="font-sans text-ink/70 mb-6">Terjadi kesalahan saat mengirim konfirmasi. Silakan coba lagi.</p>
              <button onclick="hideErrorModal()" class="w-full bg-charcoal text-white font-sans text-sm py-2 rounded-full hover:bg-black transition">
                  Tutup
              </button>
