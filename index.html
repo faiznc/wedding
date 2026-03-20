@@ -347,14 +347,21 @@
                 }
             }
 
-            // --- BAGIAN URL PARAMETER DI SINI ---
-            const urlParams = new URLSearchParams(window.location.search);
-            // Mendukung parameter 'to' atau 'p' (misal: ?to=Nama)
-            const guestName = urlParams.get('to') || urlParams.get('p') || urlParams.get('guest');
-            if(guestName) {
-                document.getElementById('guest-name').innerText = decodeURIComponent(guestName).replace(/\+/g, ' ');
-            }
-            // ------------------------------------
+             // --- BAGIAN URL PARAMETER DI SINI ---
+             const urlParams = new URLSearchParams(window.location.search);
+             // Mendukung parameter 'to', 'p', 'guest', atau 'name' (misal: ?name=John Doe)
+             // Example URL : http://localhost:3000/?name=Hidup%20Jokowi
+             const guestName = urlParams.get('to') || urlParams.get('p') || urlParams.get('guest') || urlParams.get('name');
+             if(guestName) {
+                 const decodedName = decodeURIComponent(guestName).replace(/\+/g, ' ');
+                 document.getElementById('guest-name').innerText = decodedName;
+                 // Also set the RSVP name input if it exists
+                 const rsvpNameInput = document.getElementById('name');
+                 if (rsvpNameInput) {
+                     rsvpNameInput.value = decodedName;
+                 }
+             }
+             // ------------------------------------
 
             setTimeout(() => {
                 document.getElementById('main-glow').style.opacity = '1';
