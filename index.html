@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="color-scheme" content="light">
     <title>The Wedding of Faiz & Tania</title>
     <meta property="og:title" content="The Wedding of Faiz & Tania">
     <meta property="og:description" content="Undangan Pernikahan Faiz & Tania">
@@ -39,10 +40,14 @@
     </script>
 
     <style>
+        :root {
+            color-scheme: light;
+        }
+
         /* BASE */
         html.lenis { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
-        body { background-color: #F4F2EE; color: #1A1A1A; overflow-x: hidden; cursor: default; }
+        html, body { background-color: #F4F2EE !important; color: #1A1A1A !important; overflow-x: hidden; cursor: default; }
         .h-dvh { height: 100dvh; }
 
         /* TEXTURE */
@@ -87,7 +92,7 @@
     /* HEARTS BURST ANIMATION */
     .heart {
     position: absolute;
-    color: #1A1A1A;
+    color: #FF4033;
     font-size: 24px;
     pointer-events: none;
     z-index: 1000;
@@ -98,7 +103,7 @@
 
     .heart-center {
     position: absolute;
-    color: #050505;
+    color: #C51104;
     font-size: 56px;
     pointer-events: none;
     z-index: 1000;
