@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -45,10 +45,15 @@
         }
 
         /* BASE */
-        html.lenis { height: auto; }
+        html.lenis { height: auto; overflow: auto; }
+        html.lenis body { overflow: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
         html, body { background-color: #F4F2EE !important; color: #1A1A1A !important; overflow-x: hidden; cursor: default; }
         .h-dvh { height: 100dvh; }
+
+        /* Hide scrollbar while allowing scroll */
+        html::-webkit-scrollbar { display: none; }
+        html { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* TEXTURE */
         .noise-overlay { position: fixed; inset: 0; z-index: 999; opacity: 0.03; pointer-events: none; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
@@ -139,6 +144,24 @@
         .animate-fade-out {
         animation: fadeOut 0.3s ease-in forwards;
         }
+
+    /* Button Pulse/Glow Effect */
+    @keyframes button-glow {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+            border-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        50% {
+            box-shadow: 0 0 20px 12px rgba(0, 0, 0, 0.05), inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+    }
+
+    .btn-highlight {
+        animation: button-glow 1.5s ease-in-out infinite;
+    }
     </style>
 </head>
 <body class="antialiased selection:bg-gold selection:text-white">
@@ -189,7 +212,7 @@
                 </div>
 
                 <div class="overflow-hidden mt-2">
-                    <p class="font-sans text-[9px] md:text-xs tracking-[0.4em] uppercase text-black/90 font-bold opacity-0" id="label-btm">23 . 05 . 2026</p>
+                    <p class="font-sans text-[15px] md:text-xs tracking-[0.4em] uppercase text-black/90 font-bold opacity-0" id="label-btm">23 - 05 - 2026</p>
                 </div>
 
                 <div class="mt-6 opacity-0" id="guest-container">
@@ -201,9 +224,9 @@
             </div>
 
             <div class="mb-4 opacity-0" id="cover-btn">
-                <button onclick="enterWorld()" class="group relative px-10 py-3 md:px-12 md:py-4 bg-transparent border border-black/30 rounded-full overflow-hidden transition-all hover:border-black active:scale-95">
+                <button onclick="enterWorld()" class="btn-highlight group relative px-14 py-4 md:px-16 md:py-5 bg-white/20 backdrop-blur-sm border-2 border-black/30 rounded-full overflow-hidden transition-all hover:border-black active:scale-95">
                     <div class="absolute inset-0 bg-black/90 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500 ease-in-out"></div>
-                    <span class="relative z-10 font-sans text-[9px] md:text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-3 text-black group-hover:text-white transition-colors">
+                    <span class="relative z-10 font-sans text-[11px] md:text-[12px] font-bold tracking-[0.3em] uppercase flex items-center gap-3 text-black group-hover:text-white transition-colors">
                         Buka Undangan
                     </span>
                 </button>
@@ -516,9 +539,28 @@
         }
 
         function initScroll() {
-            const lenis = new Lenis({ lerp: 0.08, smooth: true });
-            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-            requestAnimationFrame(raf);
+            // Detect if mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            const lenis = new Lenis({ 
+                lerp: isMobile ? 0.05 : 0.08,
+                smooth: true,
+                syncTouch: true,
+                duration: isMobile ? 1.2 : 1
+            });
+            
+            let rafId;
+            function raf(time) { 
+                lenis.raf(time); 
+                rafId = requestAnimationFrame(raf); 
+            }
+            rafId = requestAnimationFrame(raf);
+            
+            // Handle direction changes more smoothly
+            lenis.on('scroll', (e) => {
+                // Reset ScrollTrigger when direction changes rapidly
+                ScrollTrigger.update();
+            });
 
             let mm = gsap.matchMedia();
             mm.add("(min-width: 800px)", () => {
