@@ -54,6 +54,13 @@
     <style>
         :root {
             color-scheme: light;
+            --is-mobile: 1;
+        }
+
+        @media (min-width: 769px) {
+            :root {
+                --is-mobile: 0;
+            }
         }
 
         /* BASE */
@@ -67,8 +74,14 @@
         html::-webkit-scrollbar { display: none; }
         html { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* TEXTURE */
-        .noise-overlay { position: fixed; inset: 0; z-index: 999; opacity: 0.03; pointer-events: none; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        /* TEXTURE - Disable on mobile for performance */
+        @media (min-width: 769px) {
+            .noise-overlay { position: fixed; inset: 0; z-index: 999; opacity: 0.03; pointer-events: none; background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        }
+        
+        @media (max-width: 768px) {
+            .noise-overlay { display: none; }
+        }
 
         #hearts-container { position: fixed; inset: 0; z-index: 1001; pointer-events: none; overflow: hidden; }
 
@@ -95,16 +108,21 @@
         .smooth-skew { will-change: transform; }
         .char { display: inline-block; }
         
-    /* PREMIUM: BACKGROUND BREATHING */
-    .bg-breathe {
-    /* animation: breathe 18s ease-in-out infinite; */
-    animation: breathe 30s cubic-bezier(0.42, 0, 0.58, 1) infinite;
-    }
+        /* PREMIUM: BACKGROUND BREATHING - Disabled on mobile for performance */
+        .bg-breathe {
+            animation: none;
+        }
 
-    @keyframes breathe {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.3); }
-    }
+        @media (min-width: 769px) {
+            .bg-breathe {
+                animation: breathe 30s cubic-bezier(0.42, 0, 0.58, 1) infinite;
+            }
+        }
+
+        @keyframes breathe {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        }
 
     /* HEARTS BURST ANIMATION */
     .heart {
@@ -173,6 +191,25 @@
 
     .btn-highlight {
         animation: button-glow 1.5s ease-in-out infinite;
+    }
+
+    /* MOBILE PERFORMANCE OPTIMIZATIONS */
+    @media (max-width: 768px) {
+        /* Disable complex animations on mobile */
+        .parallax-col { transform: none !important; }
+        .parallax-hero { transform: none !important; }
+        .parallax-img { will-change: auto; }
+        
+        /* Simplify transitions */
+        * {
+            animation-duration: 0.5s !important;
+        }
+        
+        /* Disable button glow animation on mobile */
+        .btn-highlight {
+            animation: none !important;
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2), inset 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
+        }
     }
     </style>
 </head>
@@ -555,10 +592,11 @@
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             
             const lenis = new Lenis({ 
-                lerp: isMobile ? 0.05 : 0.08,
+                lerp: isMobile ? 0.08 : 0.08,
                 smooth: true,
                 syncTouch: true,
-                duration: isMobile ? 1.2 : 1
+                duration: isMobile ? 0.8 : 1,
+                wheelMultiplier: isMobile ? 1.2 : 1
             });
             
             let rafId;
@@ -574,46 +612,72 @@
                 ScrollTrigger.update();
             });
 
-            let mm = gsap.matchMedia();
-            mm.add("(min-width: 800px)", () => {
-                 gsap.utils.toArray('.parallax-col').forEach(col => {
-                    const speed = parseFloat(col.dataset.speed || 0.1);
-                    gsap.to(col, { y: () => -100 * speed, ease: "none", scrollTrigger: { trigger: "#gallery", start: "top bottom", end: "bottom top", scrub: 1 } });
+            // Reduce animations on mobile for better performance
+            if (!isMobile) {
+                let mm = gsap.matchMedia();
+                mm.add("(min-width: 800px)", () => {
+                     gsap.utils.toArray('.parallax-col').forEach(col => {
+                        const speed = parseFloat(col.dataset.speed || 0.1);
+                        gsap.to(col, { y: () => -100 * speed, ease: "none", scrollTrigger: { trigger: "#gallery", start: "top bottom", end: "bottom top", scrub: 1 } });
+                    });
                 });
-            });
 
-            document.querySelectorAll('.reveal-container').forEach(el => {
-                ScrollTrigger.create({ trigger: el, start: "top 75%", onEnter: () => el.classList.add('active') });
-            });
-
-            gsap.utils.toArray('.fade-up').forEach(el => {
-                gsap.fromTo(el, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%" } });
-            });
-
-            document.querySelectorAll('.split-text-reveal').forEach(el => {
-                const text = new SplitType(el, { types: 'words, chars' });
-                gsap.from(text.chars, {
-                    opacity: 0, y: 20, rotateX: -90, stagger: 0.02, duration: 1, ease: "back.out",
-                    scrollTrigger: { trigger: el, start: "top 80%" }
+                document.querySelectorAll('.reveal-container').forEach(el => {
+                    ScrollTrigger.create({ trigger: el, start: "top 75%", onEnter: () => el.classList.add('active') });
                 });
-            });
 
-             gsap.utils.toArray('.reveal-line-x').forEach(el => {
-                gsap.to(el, { scaleX: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 90%" } });
-            });
+                gsap.utils.toArray('.fade-up').forEach(el => {
+                    gsap.fromTo(el, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 85%" } });
+                });
 
-             gsap.utils.toArray('.scale-in').forEach(el => {
-                gsap.to(el, { scale: 1, duration: 0.8, ease: "back.out(2)", scrollTrigger: { trigger: el, start: "top 85%" } });
-            });
-            
-            gsap.to(".parallax-hero", { yPercent: 20, ease: "none", scrollTrigger: { trigger: ".clip-arch-reveal", start: "top bottom", end: "bottom top", scrub: true } });
+                document.querySelectorAll('.split-text-reveal').forEach(el => {
+                    const text = new SplitType(el, { types: 'words, chars' });
+                    gsap.from(text.chars, {
+                        opacity: 0, y: 20, rotateX: -90, stagger: 0.02, duration: 1, ease: "back.out",
+                        scrollTrigger: { trigger: el, start: "top 80%" }
+                    });
+                });
+
+                 gsap.utils.toArray('.reveal-line-x').forEach(el => {
+                    gsap.to(el, { scaleX: 1, duration: 1, ease: "power3.out", scrollTrigger: { trigger: el, start: "top 90%" } });
+                });
+
+                 gsap.utils.toArray('.scale-in').forEach(el => {
+                    gsap.to(el, { scale: 1, duration: 0.8, ease: "back.out(2)", scrollTrigger: { trigger: el, start: "top 85%" } });
+                });
+                
+                gsap.to(".parallax-hero", { yPercent: 20, ease: "none", scrollTrigger: { trigger: ".clip-arch-reveal", start: "top bottom", end: "bottom top", scrub: true } });
+            } else {
+                // On mobile, only animate the most important elements with simpler animations
+                document.querySelectorAll('.reveal-container').forEach(el => {
+                    ScrollTrigger.create({ trigger: el, start: "top 75%", onEnter: () => el.classList.add('active') });
+                });
+
+                gsap.utils.toArray('.fade-up').forEach((el, index) => {
+                    // Only animate first 3 fade-up elements on mobile
+                    if (index < 3) {
+                        gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out", scrollTrigger: { trigger: el, start: "top 85%" } });
+                    }
+                });
+            }
         }
 
         function createParticles() {
+            // Detect if mobile
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            // Skip particle creation on mobile for better performance
+            if (isMobile) {
+                console.log('Particles disabled on mobile');
+                return;
+            }
+            
             const container = document.getElementById('particles');
-            for(let i=0; i<69; i++){
+            // Reduce particles count from 69 to 30 for better performance
+            const particleCount = 30;
+            for(let i=0; i<particleCount; i++){
                 const p = document.createElement('div');
-                p.classList.add('particle'); p.style.left = Math.random()*100 + 'vw'; p.style.top = Math.random()*100 + 'vh'; p.style.opacity = Math.random();
+                p.classList.add('particle'); p.style.left = Math.random()*100 + 'vw'; p.style.top = Math.random()*100 + 'vh'; p.style.opacity = Math.random() * 0.5;
                 container.appendChild(p);
                 gsap.to(p, { y: -100, x: "random(-50, 50)", duration: "random(5, 10)", repeat: -1, ease: "none", yoyo: true });
             }
@@ -623,6 +687,9 @@
             return new Promise(resolve => {
                 const container = document.getElementById('hearts-container');
                 const heartSymbols = ['❤︎⁠'];
+                
+                // Detect if mobile
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
                 const button = document.getElementById('cover-btn');
                 const rect = button.getBoundingClientRect();
@@ -650,8 +717,9 @@
 
                 setTimeout(cleanup, 3800);
 
-                // Burst hearts animation
-                for (let i = 0; i < 18; i++) {
+                // Burst hearts animation - Reduce heart count on mobile
+                const heartCount = isMobile ? 8 : 18;
+                for (let i = 0; i < heartCount; i++) {
                     const heart = document.createElement('div');
                     heart.className = 'heart';
                     heart.innerHTML = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
