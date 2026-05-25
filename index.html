@@ -383,7 +383,7 @@
                             <div class="smooth-skew">
                                 <span class="font-sans text-[9px] md:text-[10px] tracking-[0.3em] text-terra uppercase font-bold block mb-2">Mempelai Pria</span>
                                 <h2 class="font-title text-4xl md:text-7xl text-ink leading-none mb-3">ALVIANTO BAGUS HARTONO<br><span class="text-2xl md:text-4xl italic text-ink/60 font-body">Bagus</span></h2>
-                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 leading-relaxed">Putra dari Keluarga Bpk. Eko Budi Hartono dan Ibu Ayu Yulia Ningrum</p>
+                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 leading-relaxed">Putra dari Bpk. Eko Budi Hartono <br>dan Ibu Ayu Yulia Ningrum</p>
                             </div>
                         </div>
                     </div>
@@ -400,7 +400,7 @@
                             <div class="smooth-skew">
                                 <span class="font-sans text-[9px] md:text-[10px] tracking-[0.3em] text-terra uppercase font-bold block mb-2">Mempelai Wanita</span>
                                 <h2 class="font-title text-4xl md:text-7xl text-ink leading-none mb-3">RETNO PENI CAHYANINGTYAS<br><span class="text-2xl md:text-4xl italic text-ink/60 font-body">Tyas</span></h2>
-                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 md:ml-auto leading-relaxed">Putri dari (Alm.) Bpk. Amat Endi dan Ibu Sri Hartati</p>
+                                <p class="font-sans text-[10px] md:text-xs text-ink/60 max-w-[250px] mx-auto md:mx-0 md:ml-auto leading-relaxed">Putri dari (Alm.) Bpk. Amat Endi <br>dan Ibu Sri Hartati</p>
                             </div>
                         </div>
                     </div>
@@ -520,7 +520,7 @@
                   'pernikahanfaiz': { slot: "A", gift: false },
                   'weddingfaiz': { slot: "B", gift: false },
                   // Added mappings for Bagus & Tyas domains
-                  'tyasbagus': { slot: "A", gift: true }
+                  'tyasbagus': { slot: "BAGUS", gift: true }
               };
 
               // Default configuration for other subdomains
@@ -569,6 +569,11 @@
                   // Slot ALL: 11.00 - 13.30 for both events
                   timeElements[0].textContent = "07.00 - 08.00";
                   timeElements[1].textContent = "11.00 — 14.00 ";
+              }
+              else if (slot === "BAGUS") {
+                  // Slot BAGUS: 09.00 & 12.00
+                  timeElements[0].textContent = "09.00 WIB";
+                  timeElements[1].textContent = "12.00 WIB";
               }
           }
          
